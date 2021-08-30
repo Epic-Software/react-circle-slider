@@ -24,48 +24,9 @@ const CircleSlider: FC<CircleProps> = ({
 }: CircleProps) => {
 	const [angle, setAngle] = useState(value);
 
-	const panResponder = useRef(
-		PanResponder.create({
-			onMoveShouldSetPanResponder: (e, gs) => true,
-			onStartShouldSetPanResponder: (e, gs) => true,
-			onMoveShouldSetPanResponderCapture: (e, gs) => true,
-			onStartShouldSetPanResponderCapture: (e, gs) => true,
-			onPanResponderMove: (e, gs) => {
-				let xOrigin = xCenter - (dialRadius + btnRadius);
-				let yOrigin = yCenter - (dialRadius + btnRadius);
-				let a = cartesianToPolar(gs.moveX - xOrigin, gs.moveY - yOrigin);
-
-				if (a <= min) {
-					setAngle(min);
-					onChange(min);
-				}
-				if (a >= max) {
-					setAngle(max);
-					onChange(max);
-				}
-
-				setAngle(a);
-				onChange(a);
-			},
-		})
-	).current;
-
-	const polarToCartesian = useCallback(
-		(angle: number) => {
-			let r = dialRadius;
-			let hC = dialRadius + btnRadius;
-			let a = ((angle - 90) * Math.PI) / 180.0;
-
-			let x = hC + r * Math.cos(a);
-			let y = hC + r * Math.sin(a);
-			return { x, y };
-		},
-		[dialRadius, btnRadius]
-	);
-
 	const cartesianToPolar = useCallback(
 		(x: number, y: number) => {
-			let hC = dialRadius + btnRadius;
+			const hC = dialRadius + btnRadius;
 
 			if (x === 0) return y > hC ? 0 : 180;
 			if (y === 0) return x > hC ? 90 : 270;
@@ -78,8 +39,47 @@ const CircleSlider: FC<CircleProps> = ({
 		[dialRadius, btnRadius]
 	);
 
+	const panResponder = useRef(
+		PanResponder.create({
+			onMoveShouldSetPanResponder: (e, gs) => true,
+			onStartShouldSetPanResponder: (e, gs) => true,
+			onMoveShouldSetPanResponderCapture: (e, gs) => true,
+			onStartShouldSetPanResponderCapture: (e, gs) => true,
+			onPanResponderMove: (e, gs) => {
+				const xOrigin = xCenter - (dialRadius + btnRadius);
+				const yOrigin = yCenter - (dialRadius + btnRadius);
+				const result = cartesianToPolar(gs.moveX - xOrigin, gs.moveY - yOrigin);
+
+				if (result <= min) {
+					setAngle(min);
+					onChange(min);
+				}
+				if (result >= max) {
+					setAngle(max);
+					onChange(max);
+				}
+
+				setAngle(result);
+				onChange(result);
+			},
+		})
+	).current;
+
+	const polarToCartesian = useCallback(
+		(angle: number) => {
+			const raio = dialRadius;
+			const hC = dialRadius + btnRadius;
+			const result = ((angle - 90) * Math.PI) / 180.0;
+
+			const x = hC + raio * Math.cos(result);
+			const y = hC + raio * Math.sin(result);
+			return { x, y };
+		},
+		[dialRadius, btnRadius]
+	);
+
 	const startCoord = polarToCartesian(0);
-	var endCoord = polarToCartesian(angle);
+	const endCoord = polarToCartesian(angle);
 	const width = (dialRadius + btnRadius) * 2;
 
 	return (
