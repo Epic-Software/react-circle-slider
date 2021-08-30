@@ -16,4 +16,5 @@ export interface CircleProps {
   strokeColor?: string;
   strokeWidth?: number;
   style?: StyleProp<ViewStyle>;
+  onChange?: (angle: number) => void;
 }

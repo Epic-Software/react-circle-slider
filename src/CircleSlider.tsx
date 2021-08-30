@@ -7,6 +7,7 @@ import { CircleProps } from "./types/circle.types";
 const CircleSlider: FC<CircleProps> = ({
 	style,
 	min = 0,
+	onChange,
 	value = 0,
 	max = 359,
 	dialWidth = 5,
@@ -34,10 +35,17 @@ const CircleSlider: FC<CircleProps> = ({
 				let yOrigin = yCenter - (dialRadius + btnRadius);
 				let a = cartesianToPolar(gs.moveX - xOrigin, gs.moveY - yOrigin);
 
-				if (a <= min) setAngle(min);
-				if (a >= max) setAngle(max);
+				if (a <= min) {
+					setAngle(min);
+					onChange(min);
+				}
+				if (a >= max) {
+					setAngle(max);
+					onChange(max);
+				}
 
 				setAngle(a);
+				onChange(a);
 			},
 		})
 	).current;
@@ -70,8 +78,6 @@ const CircleSlider: FC<CircleProps> = ({
 		[dialRadius, btnRadius]
 	);
 
-	const bR = btnRadius;
-	const dR = dialRadius;
 	const startCoord = polarToCartesian(0);
 	var endCoord = polarToCartesian(angle);
 	const width = (dialRadius + btnRadius) * 2;
@@ -83,32 +89,32 @@ const CircleSlider: FC<CircleProps> = ({
 					fill="none"
 					stroke={meterColor}
 					strokeWidth={dialWidth}
-					d={`M${startCoord.x} ${startCoord.y} A ${dR} ${dR} 0 ${angle > 180 ? 1 : 0} 1 ${endCoord.x} ${endCoord.y}`}
+					d={`M${startCoord.x} ${startCoord.y} A ${dialRadius} ${dialRadius} 0 ${angle > 180 ? 1 : 0} 1 ${endCoord.x} ${endCoord.y}`}
 				/>
 				<Circle
-					r={dR}
+					r={dialRadius}
 					cx={width / 2}
 					cy={width / 2}
 					fill={fillColor}
 					stroke={strokeColor}
 					strokeWidth={strokeWidth}
 				/>
-				<G x={endCoord.x - bR} y={endCoord.y - bR}>
+				<G x={endCoord.x - btnRadius} y={endCoord.y - btnRadius}>
 					<Circle
-						r={bR}
-						cx={bR}
-						cy={bR}
+						r={btnRadius}
+						cx={btnRadius}
+						cy={btnRadius}
 						fill={meterColor}
 						{...panResponder.panHandlers}
 					/>
 					{
 						textSize > 0 && (
 							<Text
-								x={bR}
+								x={btnRadius}
 								fill={textColor}
 								fontSize={textSize}
 								textAnchor="middle"
-								y={bR + textSize / 2}
+								y={btnRadius + textSize / 2}
 							>
 								{angle || ""}
 							</Text>
