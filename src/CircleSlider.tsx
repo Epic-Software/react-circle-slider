@@ -2,67 +2,47 @@ import React, { FC, useState, useRef, useCallback } from "react";
 import { PanResponder, Dimensions } from "react-native";
 import Svg, { Path, Circle, G, Text } from "react-native-svg";
 
-interface Props {
-	btnRadius?: number;
-	dialRadius?: number;
-	dialWidth?: number;
-	meterColor?: string;
-	textColor?: string;
-	fillColor?: string;
-	strokeColor?: string;
-	strokeWidth?: number;
-	textSize?: number;
-	value?: number;
-	min?: number;
-	max?: number;
-	xCenter?: number;
-	yCenter?: number;
-	onValueChange?: (x: number) => number;
-}
+import { CircleProps } from "./types/circle.types";
 
-const CircleSlider: FC<Props> = ({
+const CircleSlider: FC<CircleProps> = ({
+	min = 0,
+	value = 0,
+	max = 359,
+	dialWidth = 5,
+	textSize = 10,
 	btnRadius = 15,
 	dialRadius = 130,
-	dialWidth = 5,
-	meterColor = "#0cd",
+	strokeWidth = 0.5,
 	textColor = "#fff",
 	fillColor = "none",
+	meterColor = "#0cd",
 	strokeColor = "#fff",
-	strokeWidth = 0.5,
-	textSize = 10,
-	value = 0,
-	min = 0,
-	max = 359,
 	xCenter = Dimensions.get("window").width / 2,
 	yCenter = Dimensions.get("window").height / 2,
-	onValueChange = (x) => x,
-}) => {
+}: CircleProps) => {
 	const [angle, setAngle] = useState(value);
 
 	const panResponder = useRef(
 		PanResponder.create({
-			onStartShouldSetPanResponder: (e, gs) => true,
-			onStartShouldSetPanResponderCapture: (e, gs) => true,
 			onMoveShouldSetPanResponder: (e, gs) => true,
+			onStartShouldSetPanResponder: (e, gs) => true,
 			onMoveShouldSetPanResponderCapture: (e, gs) => true,
+			onStartShouldSetPanResponderCapture: (e, gs) => true,
 			onPanResponderMove: (e, gs) => {
 				let xOrigin = xCenter - (dialRadius + btnRadius);
 				let yOrigin = yCenter - (dialRadius + btnRadius);
 				let a = cartesianToPolar(gs.moveX - xOrigin, gs.moveY - yOrigin);
 
-				if (a <= min) {
-					setAngle(min);
-				} else if (a >= max) {
-					setAngle(max);
-				} else {
-					setAngle(a);
-				}
+				if (a <= min) setAngle(min);
+				if (a >= max) setAngle(max);
+
+				setAngle(a);
 			},
 		})
 	).current;
 
 	const polarToCartesian = useCallback(
-		(angle) => {
+		(angle: number) => {
 			let r = dialRadius;
 			let hC = dialRadius + btnRadius;
 			let a = ((angle - 90) * Math.PI) / 180.0;
@@ -75,46 +55,41 @@ const CircleSlider: FC<Props> = ({
 	);
 
 	const cartesianToPolar = useCallback(
-		(x, y) => {
+		(x: number, y: number) => {
 			let hC = dialRadius + btnRadius;
 
-			if (x === 0) {
-				return y > hC ? 0 : 180;
-			} else if (y === 0) {
-				return x > hC ? 90 : 270;
-			} else {
-				return (
-					Math.round((Math.atan((y - hC) / (x - hC)) * 180) / Math.PI) +
-					(x > hC ? 90 : 270)
-				);
-			}
+			if (x === 0) return y > hC ? 0 : 180;
+			if (y === 0) return x > hC ? 90 : 270;
+
+			return (
+				Math.round((Math.atan((y - hC) / (x - hC)) * 180) / Math.PI) +
+				(x > hC ? 90 : 270)
+			);
 		},
 		[dialRadius, btnRadius]
 	);
 
-	const width = (dialRadius + btnRadius) * 2;
 	const bR = btnRadius;
 	const dR = dialRadius;
 	const startCoord = polarToCartesian(0);
 	var endCoord = polarToCartesian(angle);
+	const width = (dialRadius + btnRadius) * 2;
 
 	return (
 		<Svg width={width} height={width}>
 			<Path
+				fill="none"
 				stroke={meterColor}
 				strokeWidth={dialWidth}
-				fill="none"
-				d={`M${startCoord.x} ${startCoord.y} A ${dR} ${dR} 0 ${
-					angle > 180 ? 1 : 0
-				} 1 ${endCoord.x} ${endCoord.y}`}
+				d={`M${startCoord.x} ${startCoord.y} A ${dR} ${dR} 0 ${angle > 180 ? 1 : 0} 1 ${endCoord.x} ${endCoord.y}`}
 			/>
 			<Circle
 				r={dR}
 				cx={width / 2}
 				cy={width / 2}
+				fill={fillColor}
 				stroke={strokeColor}
 				strokeWidth={strokeWidth}
-				fill={fillColor}
 			/>
 			<G x={endCoord.x - bR} y={endCoord.y - bR}>
 				<Circle
@@ -128,12 +103,12 @@ const CircleSlider: FC<Props> = ({
 					textSize > 0 && (
 						<Text
 							x={bR}
-							y={bR + textSize / 2}
-							fontSize={textSize}
 							fill={textColor}
+							fontSize={textSize}
 							textAnchor="middle"
+							y={bR + textSize / 2}
 						>
-							{onValueChange(angle) + ""}
+							{angle || ""}
 						</Text>
 					)
 				}
