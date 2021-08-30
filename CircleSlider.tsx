@@ -100,15 +100,6 @@ const CircleSlider: FC<Props> = ({
 
 	return (
 		<Svg width={width} height={width}>
-			<Circle
-				r={dR}
-				cx={width / 2}
-				cy={width / 2}
-				stroke={strokeColor}
-				strokeWidth={strokeWidth}
-				fill={fillColor}
-			/>
-
 			<Path
 				stroke={meterColor}
 				strokeWidth={dialWidth}
@@ -117,7 +108,14 @@ const CircleSlider: FC<Props> = ({
 					angle > 180 ? 1 : 0
 				} 1 ${endCoord.x} ${endCoord.y}`}
 			/>
-
+			<Circle
+				r={dR}
+				cx={width / 2}
+				cy={width / 2}
+				stroke={strokeColor}
+				strokeWidth={strokeWidth}
+				fill={fillColor}
+			/>
 			<G x={endCoord.x - bR} y={endCoord.y - bR}>
 				<Circle
 					r={bR}
@@ -126,15 +124,19 @@ const CircleSlider: FC<Props> = ({
 					fill={meterColor}
 					{...panResponder.panHandlers}
 				/>
-				<Text
-					x={bR}
-					y={bR + textSize / 2}
-					fontSize={textSize}
-					fill={textColor}
-					textAnchor="middle"
-				>
-					{onValueChange(angle) + ""}
-				</Text>
+				{
+					textSize > 0 && (
+						<Text
+							x={bR}
+							y={bR + textSize / 2}
+							fontSize={textSize}
+							fill={textColor}
+							textAnchor="middle"
+						>
+							{onValueChange(angle) + ""}
+						</Text>
+					)
+				}
 			</G>
 		</Svg>
 	);
