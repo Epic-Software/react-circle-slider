@@ -1,10 +1,11 @@
 import React, { FC, useState, useRef, useCallback } from "react";
-import { PanResponder, Dimensions } from "react-native";
+import { PanResponder, Dimensions, View } from "react-native";
 import Svg, { Path, Circle, G, Text } from "react-native-svg";
 
 import { CircleProps } from "./types/circle.types";
 
 const CircleSlider: FC<CircleProps> = ({
+	style,
 	min = 0,
 	value = 0,
 	max = 359,
@@ -76,44 +77,46 @@ const CircleSlider: FC<CircleProps> = ({
 	const width = (dialRadius + btnRadius) * 2;
 
 	return (
-		<Svg width={width} height={width}>
-			<Path
-				fill="none"
-				stroke={meterColor}
-				strokeWidth={dialWidth}
-				d={`M${startCoord.x} ${startCoord.y} A ${dR} ${dR} 0 ${angle > 180 ? 1 : 0} 1 ${endCoord.x} ${endCoord.y}`}
-			/>
-			<Circle
-				r={dR}
-				cx={width / 2}
-				cy={width / 2}
-				fill={fillColor}
-				stroke={strokeColor}
-				strokeWidth={strokeWidth}
-			/>
-			<G x={endCoord.x - bR} y={endCoord.y - bR}>
-				<Circle
-					r={bR}
-					cx={bR}
-					cy={bR}
-					fill={meterColor}
-					{...panResponder.panHandlers}
+		<View style={style}>
+			<Svg width={width} height={width}>
+				<Path
+					fill="none"
+					stroke={meterColor}
+					strokeWidth={dialWidth}
+					d={`M${startCoord.x} ${startCoord.y} A ${dR} ${dR} 0 ${angle > 180 ? 1 : 0} 1 ${endCoord.x} ${endCoord.y}`}
 				/>
-				{
-					textSize > 0 && (
-						<Text
-							x={bR}
-							fill={textColor}
-							fontSize={textSize}
-							textAnchor="middle"
-							y={bR + textSize / 2}
-						>
-							{angle || ""}
-						</Text>
-					)
-				}
-			</G>
-		</Svg>
+				<Circle
+					r={dR}
+					cx={width / 2}
+					cy={width / 2}
+					fill={fillColor}
+					stroke={strokeColor}
+					strokeWidth={strokeWidth}
+				/>
+				<G x={endCoord.x - bR} y={endCoord.y - bR}>
+					<Circle
+						r={bR}
+						cx={bR}
+						cy={bR}
+						fill={meterColor}
+						{...panResponder.panHandlers}
+					/>
+					{
+						textSize > 0 && (
+							<Text
+								x={bR}
+								fill={textColor}
+								fontSize={textSize}
+								textAnchor="middle"
+								y={bR + textSize / 2}
+							>
+								{angle || ""}
+							</Text>
+						)
+					}
+				</G>
+			</Svg>
+		</View>
 	);
 };
 

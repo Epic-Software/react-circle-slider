@@ -1,3 +1,5 @@
+import { StyleProp, ViewStyle } from "react-native";
+
 export interface CircleProps {
   min?: number;
   max?: number;
@@ -13,4 +15,5 @@ export interface CircleProps {
   meterColor?: string;
   strokeColor?: string;
   strokeWidth?: number;
+  style?: StyleProp<ViewStyle>;
 }
